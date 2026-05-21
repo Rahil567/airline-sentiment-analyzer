@@ -19,7 +19,7 @@ def build_lr_model():
         df_train = pd.read_csv('Tweets.csv')[['airline_sentiment','text']].dropna()
         pipe = Pipeline([
             ('tfidf', TfidfVectorizer(max_features=20000, ngram_range=(1,2), sublinear_tf=True)),
-            ('lr',    LogisticRegression(max_iter=1000, C=1.0, random_state=42))
+            ('lr',    LogisticRegression(class_weight='balanced',max_iter=1000, C=1.0, random_state=42))
         ])
         pipe.fit(df_train['text'], df_train['airline_sentiment'])
         return pipe
