@@ -15,17 +15,10 @@ vader = SentimentIntensityAnalyzer()
 # ── Train LR model on dataset ─────────────────
 @st.cache_resource
 def build_lr_model():
-    try:
-        df_train = pd.read_csv('Tweets.csv')[['airline_sentiment','text']].dropna()
-        pipe = Pipeline([
-            ('tfidf', TfidfVectorizer(max_features=20000, ngram_range=(1,2), sublinear_tf=True)),
-            ('lr',    LogisticRegression(class_weight='balanced',max_iter=1000, C=1.0, random_state=42))
-        ])
-        pipe.fit(df_train['text'], df_train['airline_sentiment'])
-        return pipe
-    except:
-        return None
-
+    import pickle
+    with open('lr_model.pkl', 'rb') as f:
+        return pickle.load(f)
+    
 lr_model = build_lr_model()
 
 def clean_text(t):
