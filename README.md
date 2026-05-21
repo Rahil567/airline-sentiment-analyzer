@@ -6,7 +6,7 @@ A **multi-model NLP web application** that analyzes the sentiment of airline-rel
 
 ## 🚀 Live Demo
 
-> Coming soon — deploying on Render
+> 🌐 [Live Demo](https://airline-sentiment-analyzer.onrender.com)
 
 ---
 
