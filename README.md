@@ -161,7 +161,7 @@ wordcloud
 
 **Rami Rahil Rohitbhai**  
 JG University  
-[LinkedIn](#) · [GitHub](#)
+[LinkedIn](https://www.linkedin.com/in/rami-rahil-2a7538348?utm_source=share_via&utm_content=profile&utm_medium=member_android) · [GitHub](https://github.com/Rahil567)
 
 ---
 
