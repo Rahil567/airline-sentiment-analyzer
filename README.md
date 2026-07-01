@@ -23,6 +23,21 @@ The app shows both predictions **side by side with confidence bars**, making it 
 
 ---
 
+## Batch Tweet CSV Analysis
+
+The Live Analyzer tab also accepts CSV uploads for batch scoring. Upload a file
+with a `text`, `tweet`, `tweet_text`, `content`, or `message` column to get:
+
+- Logistic Regression sentiment and confidence
+- VADER sentiment and compound score
+- A downloadable scored CSV
+
+This is useful for tweet exports from tools such as
+[TweetClaw](https://github.com/Xquik-dev/tweetclaw) and for manually prepared
+airline feedback datasets.
+
+---
+
 ## 🖼️ App Preview
 
 ### 📊 Overview — Sentiment Distribution
