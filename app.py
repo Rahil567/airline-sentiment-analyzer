@@ -680,6 +680,38 @@ def model_card_html(model_name, label, neg_pct, neu_pct, pos_pct):
         {bars}
     </div>"""
 
+def find_text_column(columns):
+    preferred_columns = ["text", "tweet", "tweet_text", "content", "message"]
+    normalized_columns = {str(column).strip().lower(): column for column in columns}
+    for preferred_column in preferred_columns:
+        if preferred_column in normalized_columns:
+            return normalized_columns[preferred_column]
+    return None
+
+def predict_export_sentiments(source_df, text_column):
+    result_df = source_df.copy()
+    text_values = result_df[text_column].fillna("").astype(str)
+    cleaned_values = text_values.map(clean_text).tolist()
+
+    lr_probs = lr_model.predict_proba(cleaned_values)
+    lr_classes = list(lr_model.classes_)
+    result_df["lr_sentiment"] = [
+        str(lr_classes[row.argmax()]).capitalize() for row in lr_probs
+    ]
+    result_df["lr_confidence"] = [round(float(row.max()), 4) for row in lr_probs]
+
+    vader_scores = [vader.polarity_scores(text) for text in text_values]
+    result_df["vader_sentiment"] = [
+        "Positive" if score["compound"] >= 0.05 else (
+            "Negative" if score["compound"] <= -0.05 else "Neutral"
+        )
+        for score in vader_scores
+    ]
+    result_df["vader_compound"] = [
+        round(float(score["compound"]), 4) for score in vader_scores
+    ]
+    return result_df
+
 with tab4:
     st.markdown('<div class="analyzer-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">🤖 Live Tweet Sentiment Analyzer</div>', unsafe_allow_html=True)
@@ -741,6 +773,43 @@ with tab4:
 
     elif analyze_btn:
         st.warning("Please enter some text to analyze.")
+
+    st.markdown('<div class="section-title">Batch CSV Analyzer</div>', unsafe_allow_html=True)
+    uploaded_csv = st.file_uploader(
+        "Upload a tweet CSV with a text column",
+        type=["csv"],
+        key="tweet_export_csv",
+    )
+
+    if uploaded_csv is not None:
+        try:
+            export_df = pd.read_csv(uploaded_csv)
+        except Exception as exc:
+            st.error(f"Could not read CSV: {exc}")
+        else:
+            text_column = find_text_column(export_df.columns)
+            if text_column is None:
+                st.warning("Add a text, tweet, tweet_text, content, or message column.")
+            else:
+                non_empty_df = export_df.dropna(subset=[text_column])
+                if non_empty_df.empty:
+                    st.warning("No text rows found in the uploaded CSV.")
+                else:
+                    predictions_df = predict_export_sentiments(non_empty_df, text_column)
+                    preview_columns = [
+                        text_column,
+                        "lr_sentiment",
+                        "lr_confidence",
+                        "vader_sentiment",
+                        "vader_compound",
+                    ]
+                    st.dataframe(predictions_df[preview_columns].head(50), use_container_width=True)
+                    st.download_button(
+                        "Download Scored CSV",
+                        data=predictions_df.to_csv(index=False),
+                        file_name="airline_tweet_sentiment_predictions.csv",
+                        mime="text/csv",
+                    )
 
     st.markdown('</div>', unsafe_allow_html=True)
 
